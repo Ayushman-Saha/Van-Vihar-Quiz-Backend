@@ -5,7 +5,7 @@ import {ApiError} from "../utils/ApiError.js"
 
 const addQuestions = asyncHandler(async(req, res) => {
 
-    const {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment} = req.body
+    const {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment, marks} = req.body
 
     //Cheking if all the required fields are there
     if (
@@ -33,7 +33,8 @@ const addQuestions = asyncHandler(async(req, res) => {
         answerDescription,
         answerDescriptionAttachment,
         difficulty,
-        descriptionAttachment
+        descriptionAttachment,
+        marks: (difficulty === "easy") ? parseInt(process.env.MARKS_EASY) : ((difficulty === "medium")? parseInt(process.env.MARKS_MEDIUM): parseInt(process.env.MARKS_HARD))
     })
 
     const createdQuestion = await QuizQuestion.findById(quizQuestion._id)
@@ -54,7 +55,7 @@ const getQuestions = asyncHandler(async(req, res) => {
    const responseMedium = await QuizQuestion.aggregate([
         {
             $match: {
-                difficulty: "medium"
+                $and: [{answerType: "text"},{hasAttachment: false}]
             }
         },
         {
@@ -98,6 +99,22 @@ const getQuestions = asyncHandler(async(req, res) => {
     )
 })
 
+const getMarkingScheme = asyncHandler(async(req,res) => {
+    let easy = parseInt(process.env.MARKS_EASY)
+    let medium = parseInt(process.env.MARKS_MEDIUM)
+    let hard = parseInt(process.env.MARKS_HARD)
+
+    let data = {
+        "easy": easy,
+        "medium": medium,
+        "hard" : hard
+    }
+
+    res.status(200).json(
+        new ApiResponse(200,data,"Marking scheme fetched successfully!")
+    )
+})
 
 
-export {addQuestions, getQuestions}
+
+export {addQuestions, getQuestions,getMarkingScheme}
