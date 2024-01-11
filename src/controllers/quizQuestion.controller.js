@@ -55,7 +55,7 @@ const getQuestions = asyncHandler(async(req, res) => {
    const responseMedium = await QuizQuestion.aggregate([
         {
             $match: {
-                $and: [{answerType: "text"},{hasAttachment: false}]
+                difficulty: "medium"
             }
         },
         {
