@@ -1,0 +1,27 @@
+{
+  "name": "van-vihar-quiz-backend",
+  "version": "1.0.0",
+  "description": "Backend for the van vihar quiz app",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "build": "node index.js"
+  },
+  "author": "Ayushman Saha",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.4",
+    "mongoose-aggregate-paginate-v2": "^1.0.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1"
+  }
+}
