@@ -1,4 +1,5 @@
 import { QuizResult } from "../models/quizResults.model.js";
+import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -36,21 +37,53 @@ const addResult = asyncHandler(async(req,res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdQuestion, "Result registered Successfully")
+        new ApiResponse(200, createdResult, "Result registered Successfully")
     )
 })
 
 
 const getResult = asyncHandler(async(req, res) => {
-    let uid = req.body.uid
+    let uid = req.query.uid
 
     let user = await QuizResult.findOne({
         uid: uid
     })
+    if(user!=null) {
+        return res.status(200).json(
+            new ApiResponse(200, user, "User result fetched successfully!")
+        )
+    } else {
+       return res.status(404).json(
+        new ApiResponse(404, null, "User not found!")
+       )
+    }
+    
+})
+const clearResult = asyncHandler(async(req, res) => {
+    let uid = req.query.uid
 
-    return res.status(200).json(
-        new ApiResponse(200, user, "User result fetched successfully!")
-    )
+    let userResult = await QuizResult.findOne({
+        uid: uid
+    })
+    if(userResult !=null) {
+        let data = await QuizResult.deleteOne({
+            uid: uid
+        })
+        if(data.deletedCount == 1) {
+            return res.status(200).json(
+                new ApiResponse(200, null, "User result removed successfully")
+            )
+        } else {
+            return res.status(500).json(
+                new ApiResponse(500, null, "Error while deleting user result")
+            )
+        }
+    } else {
+       return res.status(404).json(
+        new ApiResponse(404, null, "User not found!")
+       )
+    }
+    
 })
 
-export {addResult, getResult}
+export {addResult, getResult, clearResult}
