@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const addResult = asyncHandler(async(req,res) => {
 
-    const {uid,name,email,score,timeTaken} = req.body
+    const {uid,name,email,score,timeTaken, attempted} = req.body
 
      //Cheking if all the required fields are there
      if (

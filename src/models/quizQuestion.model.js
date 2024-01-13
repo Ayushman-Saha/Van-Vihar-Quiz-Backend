@@ -52,6 +52,18 @@ const quizQuestionSchema = new Schema({
     descriptionAttachment: {
         type: String,
         trim: true
+    },
+    tags: [
+       { 
+        type: String,
+        trim: true
+    }
+    ],
+    numberOfAttempts: {
+        type: Number
+    },
+    numberOfCorrectAttempts: {
+        type : Number
     }
 },{
     timestamps: true

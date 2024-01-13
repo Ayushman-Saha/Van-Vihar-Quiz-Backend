@@ -5,7 +5,7 @@ import {ApiError} from "../utils/ApiError.js"
 
 const addQuestions = asyncHandler(async(req, res) => {
 
-    const {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment, marks} = req.body
+    const {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment, tags} = req.body
 
     //Cheking if all the required fields are there
     if (
@@ -34,7 +34,8 @@ const addQuestions = asyncHandler(async(req, res) => {
         answerDescriptionAttachment,
         difficulty,
         descriptionAttachment,
-        marks: (difficulty === "easy") ? parseInt(process.env.MARKS_EASY) : ((difficulty === "medium")? parseInt(process.env.MARKS_MEDIUM): parseInt(process.env.MARKS_HARD))
+        marks: (difficulty === "easy") ? parseInt(process.env.MARKS_EASY) : ((difficulty === "medium")? parseInt(process.env.MARKS_MEDIUM): parseInt(process.env.MARKS_HARD)),
+        tags
     })
 
     const createdQuestion = await QuizQuestion.findById(quizQuestion._id)
