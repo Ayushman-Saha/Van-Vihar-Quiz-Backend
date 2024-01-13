@@ -5,11 +5,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const addResult = asyncHandler(async(req,res) => {
 
-    const {uid,name,email,score,timeTaken, attemptedQuestionsIds, correctAttemptedQuestionIds} = req.body
+    const {uid,name,email,score,timeTaken, attemptedQuestionIds, correctAttemptedQuestionIds} = req.body
 
      //Cheking if all the required fields are there
      if (
-        [uid,name,email,score,timeTaken,attemptedQuestionsIds,correctAttemptedQuestionIds].some((field) => field === "")
+        [uid,name,email,score,timeTaken,attemptedQuestionIds,correctAttemptedQuestionIds].some((field) => field === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
@@ -27,7 +27,9 @@ const addResult = asyncHandler(async(req,res) => {
         name,
         email,
         score,
-        timeTaken
+        timeTaken,
+        attemptedQuestionIds,
+        correctAttemptedQuestionIds
     })
 
 
