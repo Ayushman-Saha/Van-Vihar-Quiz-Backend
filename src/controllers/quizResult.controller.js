@@ -5,11 +5,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const addResult = asyncHandler(async(req,res) => {
 
-    const {uid,name,email,score,timeTaken, attempted} = req.body
+    const {uid,name,email,score,timeTaken, attemptedQuestionsIds, correctAttemptedQuestionIds} = req.body
 
      //Cheking if all the required fields are there
      if (
-        [uid,name,email,score,timeTaken].some((field) => field === "")
+        [uid,name,email,score,timeTaken,attemptedQuestionsIds,correctAttemptedQuestionIds].some((field) => field === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
@@ -29,6 +29,7 @@ const addResult = asyncHandler(async(req,res) => {
         score,
         timeTaken
     })
+
 
     const createdResult = await QuizResult.findById(result._id)
 
@@ -85,5 +86,19 @@ const clearResult = asyncHandler(async(req, res) => {
     }
     
 })
+
+// const getQuestionReport = asyncHandler(async(req,res) => {
+//     const updateAttemptResponse = await QuizResult.aggregate([
+//         {
+//             $unwind: "$attemptedQuestionsIds"
+//         },
+//         {
+//             $group: {"_id": "$attemptedQuestionIds", "count": {$sum:1}}
+//         },
+//         {
+//             $group: {"_id":null, "attemptedResponseDetails": {$push : {""}}}
+//         }
+//     ])
+// })
 
 export {addResult, getResult, clearResult}

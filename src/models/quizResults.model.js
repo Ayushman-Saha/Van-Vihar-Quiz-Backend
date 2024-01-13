@@ -23,7 +23,21 @@ const quizResultSchema = new Schema({
     timeTaken: {
         type: Number,
         required: true
-    }
+    },
+    attemptedQuestionsIds: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "QuizQuestion",
+            required: true
+        }
+    ],
+    correctAttemptedQuestionIds: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "QuizQuestion",
+            required: true
+        }
+    ]
 
 },{
     timestamps: true
