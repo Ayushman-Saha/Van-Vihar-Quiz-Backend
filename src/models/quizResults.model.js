@@ -24,7 +24,7 @@ const quizResultSchema = new Schema({
         type: Number,
         required: true
     },
-    attemptedQuestionsIds: [
+    attemptedQuestionIds: [
         {
             type: Schema.Types.ObjectId,
             ref: "QuizQuestion",
