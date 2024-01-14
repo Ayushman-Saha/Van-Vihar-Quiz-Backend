@@ -100,4 +100,33 @@ const clearResult = asyncHandler(async(req, res) => {
     
 })
 
-export {addResult, getResult, clearResult}
+const getLeaderBoard = asyncHandler(async(req,res)=> {
+    // const {uid} = req.query.uid
+
+    let leaderBoard = await QuizResult.aggregate([
+        {
+            $sort: {"score":-1}
+        },
+        {
+            $sort: {"timeTaken": 1}
+        },
+        {
+            $limit: 10
+        },
+        {
+            $project: {
+                "attemptedQuestionIds" : 0,
+                "correctAttemptedQuestionIds" : 0,
+                "createdAt": 0,
+                "updatedAt": 0,
+                "__v": 0
+            }
+        }
+    ])
+
+    res.status(200).json(
+        new ApiResponse(200,leaderBoard,"Data success")
+    )
+})
+
+export {addResult, getResult, clearResult, getLeaderBoard}
