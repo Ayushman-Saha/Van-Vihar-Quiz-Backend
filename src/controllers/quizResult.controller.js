@@ -2,6 +2,7 @@ import { QuizResult } from "../models/quizResults.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { ObjectId } from "mongodb"
 
 const addResult = asyncHandler(async(req,res) => {
 
@@ -21,6 +22,16 @@ const addResult = asyncHandler(async(req,res) => {
     if (existedResult) {
         throw new ApiError(409, "Multiple entries are not permitted")
     }
+    
+    let oAttemptedQuestionIds = []
+    attemptedQuestionIds.forEach(attemptedQuestionId => {
+        oAttemptedQuestionIds.push(ObjectId(attemptedQuestionId))
+    })
+
+    let oCorrectAttemptedQuestionIds = []
+    correctAttemptedQuestionIds.forEach(correctAttemptedQuestionId => {
+        oCorrectAttemptedQuestionIds.push(ObjectId(correctAttemptedQuestionId))
+    })
 
     const result = await QuizResult.create({
         uid,
@@ -28,8 +39,8 @@ const addResult = asyncHandler(async(req,res) => {
         email,
         score,
         timeTaken,
-        attemptedQuestionIds,
-        correctAttemptedQuestionIds
+        oAttemptedQuestionIds,
+        oCorrectAttemptedQuestionIds
     })
 
 
@@ -88,19 +99,5 @@ const clearResult = asyncHandler(async(req, res) => {
     }
     
 })
-
-// const getQuestionReport = asyncHandler(async(req,res) => {
-//     const updateAttemptResponse = await QuizResult.aggregate([
-//         {
-//             $unwind: "$attemptedQuestionsIds"
-//         },
-//         {
-//             $group: {"_id": "$attemptedQuestionIds", "count": {$sum:1}}
-//         },
-//         {
-//             $group: {"_id":null, "attemptedResponseDetails": {$push : {""}}}
-//         }
-//     ])
-// })
 
 export {addResult, getResult, clearResult}

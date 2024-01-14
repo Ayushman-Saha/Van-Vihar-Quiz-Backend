@@ -2,10 +2,11 @@ import { QuizQuestion } from "../models/quizQuestion.model.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {ApiError} from "../utils/ApiError.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 const addQuestions = asyncHandler(async(req, res) => {
 
-    const {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment, tags} = req.body
+    let {question, hasAttachment, attachmentType, answerType, attachment,answerChoices, correctAnswer, answerDescription, answerDescriptionAttachment, difficulty, descriptionAttachment, tags} = req.body
 
     //Cheking if all the required fields are there
     if (
@@ -20,6 +21,25 @@ const addQuestions = asyncHandler(async(req, res) => {
 
     if (existedQuestion) {
         throw new ApiError(409, "Same question already exist in the question bank")
+    }
+
+    if(hasAttachment && attachmentType === "image") {
+        let response = await uploadOnCloudinary(attachment)
+        attachment = response.url
+    }
+
+    if(answerType === "image") {
+        let responses = []
+        answerChoices.forEach(async choice => {
+            let response = await uploadOnCloudinary(choice)
+            responses.push(response.url)
+        })
+        answerChoices = responses
+    }
+
+    if(descriptionAttachment != null) {
+        let response = await uploadOnCloudinary(descriptionAttachment)
+        descriptionAttachment = response.url
     }
 
     const quizQuestion =  await QuizQuestion.create({
@@ -116,6 +136,49 @@ const getMarkingScheme = asyncHandler(async(req,res) => {
     )
 })
 
+const getQuestionReport = asyncHandler(async(req,res)=> {
+    const questions = await QuizQuestion.aggregate(
+        [
+            {
+                $lookup: {
+                from: "quizresults",
+                localField: "_id",
+                foreignField: "attemptedQuestionIds",
+                as:"attemptsArray"
+              }
+            },
+            {
+                $addFields: {"attempts": {$size:"$attemptsArray"}}
+               
+            },
+            {
+                $project:{
+                 "attemptsArray" : 0
+               }
+            },
+            {
+                $lookup : {
+                 from: "quizresults",
+                 localField: "_id",
+                 foreignField: "correctAttemptedQuestionIds",
+                 as:"correctAttemptsArray"
+               }
+            },
+            {
+                $addFields: {"correctAttempts": {$size:"$correctAttemptsArray"}}
+            },
+            {
+                $project: {
+                    "correctAttemptsArray": 0
+                }
+            }
+        ]
+    )
+    res.status(200).json(
+        new ApiResponse(200,questions,"Data success")
+    )
+})
 
 
-export {addQuestions, getQuestions,getMarkingScheme}
+
+export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport}
