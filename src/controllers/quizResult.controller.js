@@ -25,12 +25,12 @@ const addResult = asyncHandler(async(req,res) => {
     
     let oAttemptedQuestionIds = []
     attemptedQuestionIds.forEach(attemptedQuestionId => {
-        oAttemptedQuestionIds.push(ObjectId(attemptedQuestionId))
+        oAttemptedQuestionIds.push(new ObjectId(attemptedQuestionId))
     })
 
     let oCorrectAttemptedQuestionIds = []
     correctAttemptedQuestionIds.forEach(correctAttemptedQuestionId => {
-        oCorrectAttemptedQuestionIds.push(ObjectId(correctAttemptedQuestionId))
+        oCorrectAttemptedQuestionIds.push(new ObjectId(correctAttemptedQuestionId))
     })
 
     const result = await QuizResult.create({
