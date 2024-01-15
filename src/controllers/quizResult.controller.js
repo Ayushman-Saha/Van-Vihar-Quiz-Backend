@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb"
 
 const addResult = asyncHandler(async(req,res) => {
 
-    const {uid,name,email,score,timeTaken, attemptedQuestionIds, correctAttemptedQuestionIds} = req.body
+    const {uid,name,email,score,timeTaken,displayPicture,attemptedQuestionIds, correctAttemptedQuestionIds} = req.body
 
      //Cheking if all the required fields are there
      if (
@@ -37,6 +37,7 @@ const addResult = asyncHandler(async(req,res) => {
         uid,
         name,
         email,
+        displayPicture,
         score,
         timeTaken,
         oAttemptedQuestionIds,
