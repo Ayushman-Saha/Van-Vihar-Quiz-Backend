@@ -24,6 +24,9 @@ const quizResultSchema = new Schema({
         type: Number,
         required: true
     },
+    displayPicture: {
+        type: String,
+    },
     attemptedQuestionIds: [
         {
             type: Schema.Types.ObjectId,

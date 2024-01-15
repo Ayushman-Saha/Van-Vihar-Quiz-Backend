@@ -37,9 +37,9 @@ const addResult = asyncHandler(async(req,res) => {
         uid,
         name,
         email,
-        displayPicture,
         score,
         timeTaken,
+        displayPicture,
         oAttemptedQuestionIds,
         oCorrectAttemptedQuestionIds
     })
