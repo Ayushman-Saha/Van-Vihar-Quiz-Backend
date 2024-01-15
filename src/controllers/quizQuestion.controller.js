@@ -25,6 +25,9 @@ const addQuestions = asyncHandler(async(req, res) => {
 
     if(hasAttachment && attachmentType === "image") {
         let response = await uploadOnCloudinary(attachment)
+        if(response == null) {
+            new ApiError(400, "Clouninary error.Kindly check the links attached")
+        }
         attachment = response.url
     }
 
@@ -32,6 +35,9 @@ const addQuestions = asyncHandler(async(req, res) => {
         let responses = []
         answerChoices.forEach(async choice => {
             let response = await uploadOnCloudinary(choice)
+            if(response == null) {
+                new ApiError(400, "Clouninary error.Kindly check the links attached")
+            }
             responses.push(response.url)
         })
         answerChoices = responses
@@ -39,6 +45,9 @@ const addQuestions = asyncHandler(async(req, res) => {
 
     if(descriptionAttachment != null) {
         let response = await uploadOnCloudinary(descriptionAttachment)
+        if(response == null) {
+            new ApiError(400, "Clouninary error.Kindly check the links attached")
+        }
         descriptionAttachment = response.url
     }
 
