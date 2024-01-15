@@ -17,9 +17,11 @@ cloudinary.config({
             ]
         })
         return response;
+        
 
     } catch (error) {
         return null;
+
     }
 }
 

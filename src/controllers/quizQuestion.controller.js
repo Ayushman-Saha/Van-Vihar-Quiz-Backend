@@ -44,8 +44,10 @@ const addQuestions = asyncHandler(async(req, res) => {
     }
 
     if(descriptionAttachment != null) {
+        console.log(descriptionAttachment)
         let response = await uploadOnCloudinary(descriptionAttachment)
-        if(response == null) {
+        console.log(response)
+        if(response === null) {
             new ApiError(400, "Cloudinary error.Kindly check the links attached")
         }
         descriptionAttachment = response.url
