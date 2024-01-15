@@ -23,16 +23,6 @@ const addResult = asyncHandler(async(req,res) => {
         throw new ApiError(409, "Multiple entries are not permitted")
     }
     
-    let oAttemptedQuestionIds = []
-    attemptedQuestionIds.forEach(attemptedQuestionId => {
-        oAttemptedQuestionIds.push(attemptedQuestionId)
-    })
-
-    let oCorrectAttemptedQuestionIds = []
-    correctAttemptedQuestionIds.forEach(correctAttemptedQuestionId => {
-        oCorrectAttemptedQuestionIds.push(correctAttemptedQuestionId)
-    })
-
     const result = await QuizResult.create({
         uid,
         name,
@@ -40,8 +30,8 @@ const addResult = asyncHandler(async(req,res) => {
         score,
         timeTaken,
         displayPicture,
-        oAttemptedQuestionIds,
-        oCorrectAttemptedQuestionIds
+        attemptedQuestionIds,
+        correctAttemptedQuestionIds
     })
 
 
