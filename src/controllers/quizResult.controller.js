@@ -96,10 +96,7 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
 
     let leaderBoard = await QuizResult.aggregate([
         {
-            $sort: {"score":-1}
-        },
-        {
-            $sort: {"timeTaken": 1}
+            $sort: {"score":-1, "timeTaken": 1}
         },
         {
             $limit: 10
