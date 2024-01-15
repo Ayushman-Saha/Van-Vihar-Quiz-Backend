@@ -120,6 +120,78 @@ const getQuestions = asyncHandler(async(req, res) => {
     )
 })
 
+const getQuestionsByTags = asyncHandler(async(req, res) => {
+
+    let sampleSize = parseInt(process.env.SAMPLE_SIZE)
+
+    if (req.query.q == null) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    let query = req.query.q.split(',')
+
+   const responseMedium = await QuizQuestion.aggregate([
+    {
+        $match: {
+            "tags": {$in: query}
+        }
+    },
+        {
+            $match: {
+                difficulty: "medium"    
+            }
+        },
+        {
+            $sample: {
+                size: sampleSize
+            }
+        }
+    ])
+
+    const responseEasy = await QuizQuestion.aggregate([
+        {
+            $match: {
+                "tags": {$in: query}
+            }
+        },
+        {
+            $match: {
+                difficulty: "easy"
+            }
+        },
+        {
+            $sample: {
+                size: sampleSize,
+            }
+        }
+    ])
+
+    const responseHard = await QuizQuestion.aggregate([
+        {
+            $match: {
+                "tags": {$in: query}
+            }
+        },
+        {
+            $match: {
+                difficulty: "hard"
+            }
+        },
+        {
+            $sample: {
+                size: sampleSize
+            }
+        }
+    ])
+
+    const response = responseEasy.concat(responseMedium).concat(responseHard)
+    
+
+    return res.status(200).json(
+        new ApiResponse(200, response, "Questions fetched successfully")
+    )
+})
+
 const getMarkingScheme = asyncHandler(async(req,res) => {
     let easy = parseInt(process.env.MARKS_EASY)
     let medium = parseInt(process.env.MARKS_MEDIUM)
@@ -181,4 +253,4 @@ const getQuestionReport = asyncHandler(async(req,res)=> {
 
 
 
-export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport}
+export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags}
