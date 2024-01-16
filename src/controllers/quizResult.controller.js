@@ -92,25 +92,50 @@ const clearResult = asyncHandler(async(req, res) => {
 })
 
 const getLeaderBoard = asyncHandler(async(req,res)=> {
-    // const {uid} = req.query.uid
+    const {size} = req.query
+    let limit = parseInt(size)
+    let pipeline = []
 
-    let leaderBoard = await QuizResult.aggregate([
+    let notNullPipeline = [
         {
             $sort: {"score":-1, "timeTaken": 1}
         },
         {
-            $limit: 10
+            $limit: limit
         },
         {
             $project: {
                 "attemptedQuestionIds" : 0,
                 "correctAttemptedQuestionIds" : 0,
-                "createdAt": 0,
                 "updatedAt": 0,
                 "__v": 0
             }
         }
-    ])
+    ]
+
+    let nullPipeline = [
+        [
+            {
+                $sort: {"score":-1, "timeTaken": 1}
+            },
+            {
+                $project: {
+                    "attemptedQuestionIds" : 0,
+                    "correctAttemptedQuestionIds" : 0,
+                    "updatedAt": 0,
+                    "__v": 0
+                }
+            }
+        ]
+    ]
+
+    if(!size) {
+        pipeline = nullPipeline
+    } else {
+        pipeline = notNullPipeline
+    }
+
+    let leaderBoard = await QuizResult.aggregate(pipeline)
 
     res.status(200).json(
         new ApiResponse(200,leaderBoard,"Data success")
