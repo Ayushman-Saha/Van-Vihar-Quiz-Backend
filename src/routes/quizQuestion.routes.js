@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addQuestions, getMarkingScheme, getQuestions, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion} from "../controllers/quizQuestion.controller.js";
+import { addQuestions, getMarkingScheme, getQuestions, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion, getQuestionById} from "../controllers/quizQuestion.controller.js";
 
 const router = Router()
 
@@ -10,6 +10,7 @@ router.route("/getQuestionReport").get(getQuestionReport)
 router.route("/getQuestionByTags").get(getQuestionsByTags),
 router.route("/updateQuestion").patch(updateQuestion)
 router.route("/deleteQuestion").delete(removeQuestion)
+router.route("/getQuestionById").get(getQuestionById)
 
 
 export default router

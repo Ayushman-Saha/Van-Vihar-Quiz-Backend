@@ -131,6 +131,23 @@ const getQuestions = asyncHandler(async(req, res) => {
     )
 })
 
+const getQuestionById = asyncHandler(async(req,res)=> {
+    let {id} = req.query
+    let questionId = new mongoose.Types.ObjectId(id)
+    if(id!=null) {
+        const question = await QuizQuestion.findById(questionId)
+        if(question != null) {
+            res.status(200).json(
+                new ApiResponse(200,question,"Question fetched successfully!")
+            )
+        } else {
+            throw new ApiError(404, "No question exists with given Id")
+        }
+    } else {
+        throw new ApiError(400, "id is a required parameter")
+    }
+})
+
 const getQuestionsByTags = asyncHandler(async(req, res) => {
 
     let sampleSize = parseInt(process.env.SAMPLE_SIZE)
@@ -323,4 +340,4 @@ const removeQuestion = asyncHandler(async(req,res)=> {
     }
 })
 
-export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion}
+export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion, getQuestionById}
