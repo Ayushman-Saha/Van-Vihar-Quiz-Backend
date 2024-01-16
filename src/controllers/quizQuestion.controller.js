@@ -3,6 +3,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {ApiError} from "../utils/ApiError.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import mongoose from "mongoose"
 
 const addQuestions = asyncHandler(async(req, res) => {
 
@@ -46,7 +47,6 @@ const addQuestions = asyncHandler(async(req, res) => {
     if(descriptionAttachment != null) {
         console.log(descriptionAttachment)
         let response = await uploadOnCloudinary(descriptionAttachment)
-        console.log(response)
         if(response === null) {
             new ApiError(400, "Cloudinary error.Kindly check the links attached")
         }
@@ -262,6 +262,65 @@ const getQuestionReport = asyncHandler(async(req,res)=> {
     )
 })
 
+const updateQuestion = asyncHandler(async(req,res)=> {
+    let {id} = req.query
+    let {data} = req.body
 
+    if(data.hasAttachment && data.attachmentType === "image") {
+        let response = await uploadOnCloudinary(data.attachment)
+        if(response == null) {
+            new ApiError(400, "Cloudinary error.Kindly check the links attached")
+        }
+        data.attachment = response.url
+    }
 
-export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags}
+    if(data.answerType === "image") {
+        let responses = []
+        data.answerChoices.forEach(async choice => {
+            let response = await uploadOnCloudinary(data.choice)
+            if(response == null) {
+                new ApiError(400, "Cloudinary error.Kindly check the links attached")
+            }
+            responses.push(response.url)
+        })
+        data.answerChoices = responses
+    }
+
+    if(data.descriptionAttachment != null) {
+        let response = await uploadOnCloudinary(data.descriptionAttachment)
+        if(response === null) {
+            new ApiError(400, "Cloudinary error.Kindly check the links attached")
+        }
+        data.descriptionAttachment = response.url
+    }
+
+    const updateResponse = await QuizQuestion.updateOne(
+        {_id:new mongoose.Types.ObjectId(id)},
+        {$set: data}
+    )
+
+    if(updateResponse.modifiedCount == 1) {
+        res.status(200).json(
+            new ApiResponse(200, updateResponse, "Question updated successfully")
+        )
+    } else {
+        new ApiError(400, "Error occured while updating the question")
+    }
+})
+
+const removeQuestion = asyncHandler(async(req,res)=> {
+    let {id} = req.query
+    let deleteResponse = await QuizQuestion.deleteOne(
+        {_id: new mongoose.Types.ObjectId(id)}
+    )
+
+    if(deleteResponse.deletedCount == 1) {
+        res.status(200).json(
+            new ApiResponse(200, deleteResponse, "Document deleted successfully!")
+        )
+    } else {
+        new ApiError(400, "Error in deleting the document")
+    }
+})
+
+export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion}
