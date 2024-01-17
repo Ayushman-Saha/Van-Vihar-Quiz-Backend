@@ -82,7 +82,7 @@ const addQuestions = asyncHandler(async(req, res) => {
 
 const getQuestions = asyncHandler(async(req, res) => {
 
-    let {questionCount, tags} = req.query
+    let {questionCount,tags} = req.query
 
     if(tags!=null) tags = tags.split(",")
     
@@ -224,8 +224,6 @@ const getQuestionById = asyncHandler(async(req,res)=> {
 
 const getQuestionsByTags = asyncHandler(async(req, res) => {
 
-    let sampleSize = parseInt(process.env.SAMPLE_SIZE)
-
     if (req.query.q == null) {
         throw new ApiError(400, "All fields are required")
     }
@@ -243,11 +241,6 @@ const getQuestionsByTags = asyncHandler(async(req, res) => {
                 difficulty: "medium"    
             }
         },
-        {
-            $sample: {
-                size: sampleSize
-            }
-        }
     ])
 
     const responseEasy = await QuizQuestion.aggregate([
@@ -259,11 +252,6 @@ const getQuestionsByTags = asyncHandler(async(req, res) => {
         {
             $match: {
                 difficulty: "easy"
-            }
-        },
-        {
-            $sample: {
-                size: sampleSize,
             }
         }
     ])
@@ -277,11 +265,6 @@ const getQuestionsByTags = asyncHandler(async(req, res) => {
         {
             $match: {
                 difficulty: "hard"
-            }
-        },
-        {
-            $sample: {
-                size: sampleSize
             }
         }
     ])
