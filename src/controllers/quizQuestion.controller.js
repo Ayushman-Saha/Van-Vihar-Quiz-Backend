@@ -82,49 +82,123 @@ const addQuestions = asyncHandler(async(req, res) => {
 
 const getQuestions = asyncHandler(async(req, res) => {
 
-    let sampleSize = parseInt(process.env.SAMPLE_SIZE)
+    let {questionCount, tags} = req.query
 
-   const responseMedium = await QuizQuestion.aggregate([
-        {
-            $match: {
-                difficulty: "medium"
-            }
-        },
-        {
-            $sample: {
-                size: sampleSize
-            }
-        }
-    ])
-
-    const responseEasy = await QuizQuestion.aggregate([
-        {
-            $match: {
-                difficulty: "easy"
-            }
-        },
-        {
-            $sample: {
-                size: sampleSize,
-            }
-        }
-    ])
-
-    const responseHard = await QuizQuestion.aggregate([
-        {
-            $match: {
-                difficulty: "hard"
-            }
-        },
-        {
-            $sample: {
-                size: sampleSize
-            }
-        }
-    ])
-
-    const response = responseEasy.concat(responseMedium).concat(responseHard)
+    if(tags!=null) tags = tags.split(",")
     
+    questionCount = parseInt(questionCount)
+
+    let sampleSize = questionCount/2 + 2
+
+    let noTagPipeline = [
+       { $facet: {
+            "easyQuestions": [
+              {
+                      $match: {
+                          difficulty: "easy"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size: sampleSize
+                      }
+                  }
+            ],
+            "mediumQuestions" : [
+              {
+                      $match: {
+                          difficulty: "medium"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size:sampleSize
+                      }
+                  }
+            ],
+            "hardQuestions" : [
+              {
+                      $match: {
+                          difficulty: "hard"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size: sampleSize
+                      }
+                  }
+            ]
+          }
+        }
+    ]
+
+    let tagPipeline = [
+        {
+            $facet: {
+            "easyQuestions": [
+                {
+                    $match: {
+                        "tags": {$in: tags}
+                    }
+                },
+              {
+                      $match: {
+                          difficulty: "easy"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size: sampleSize
+                      }
+                  }
+            ],
+            "mediumQuestions" : [
+                {
+                    $match: {
+                        "tags": {$in: tags}
+                    }
+                },
+              {
+                      $match: {
+                          difficulty: "medium"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size: sampleSize
+                      }
+                  }
+            ],
+            "hardQuestions" : [
+                {
+                    $match: {
+                        "tags": {$in: tags}
+                    }
+                },
+              {
+                      $match: {
+                          difficulty: "hard"
+                      }
+                  },
+                  {
+                      $sample: {
+                          size: sampleSize
+                      }
+                  }
+            ]
+          }
+        }
+    ]
+
+//     console.log(noTagPipeline)
+
+    let pipeLine = (tags == undefined)? noTagPipeline : tagPipeline
+
+   let response = await QuizQuestion.aggregate(pipeLine)
+
+   if(response == null) {
+    throw new ApiError(500, "Error while fetching questions")
+   }
 
     return res.status(200).json(
         new ApiResponse(200, response, "Questions fetched successfully")
