@@ -4,6 +4,7 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {ApiError} from "../utils/ApiError.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import mongoose from "mongoose"
+import { response } from "express"
 
 const addQuestions = asyncHandler(async(req, res) => {
 
@@ -351,13 +352,20 @@ const updateQuestion = asyncHandler(async(req,res)=> {
     if(data.answerType === "image") {
         let responses = []
         data.answerChoices.forEach(async choice => {
-            let response = await uploadOnCloudinary(data.choice)
+            let response = await uploadOnCloudinary(choice)
             if(response == null) {
-                new ApiError(400, "Cloudinary error.Kindly check the links attached")
+                throw new ApiError(400, "Cloudinary error.Kindly check the links attached")
             }
             responses.push(response.url)
         })
         data.answerChoices = responses
+        
+        if(data.correctAnswer != null) {
+            let responseCorrectAnwer = await uploadOnCloudinary(data.correctAnswer)
+        data.correctAnswer = responseCorrectAnwer.url
+        } else {
+            throw new ApiError(400, "correctAnswer field is required")
+        }
     }
 
     if(data.descriptionAttachment != null) {
