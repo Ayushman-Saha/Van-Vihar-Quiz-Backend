@@ -35,18 +35,28 @@ const addQuestions = asyncHandler(async(req, res) => {
 
     if(answerType === "image") {
         let responses = []
-        answerChoices.forEach(async choice => {
+        let correctIndex = answerChoices.indexOf(correctAnswer)
+
+        if(correctIndex === -1) {
+            throw new ApiError(400, "Correct answer not in answer choices")
+        }
+
+        for(const choice of answerChoices) {
             let response = await uploadOnCloudinary(choice)
-            if(response == null) {
-                new ApiError(400, "Cloudinary error.Kindly check the links attached")
+            if(response === null) {
+               throw new ApiError(400, "Cloudinary error.Kindly check the links attached")
             }
+
+            if(choice === answerChoices[correctIndex]) {
+                correctAnswer = response.url
+            }
+
             responses.push(response.url)
-        })
+        }
         answerChoices = responses
     }
 
     if(descriptionAttachment != null) {
-        console.log(descriptionAttachment)
         let response = await uploadOnCloudinary(descriptionAttachment)
         if(response === null) {
             new ApiError(400, "Cloudinary error.Kindly check the links attached")
@@ -66,7 +76,6 @@ const addQuestions = asyncHandler(async(req, res) => {
         answerDescriptionAttachment,
         difficulty,
         descriptionAttachment,
-        marks: (difficulty === "easy") ? parseInt(process.env.MARKS_EASY) : ((difficulty === "medium")? parseInt(process.env.MARKS_MEDIUM): parseInt(process.env.MARKS_HARD)),
         tags
     })
 
@@ -279,7 +288,7 @@ const getQuestionsByTags = asyncHandler(async(req, res) => {
 })
 
 const getMarkingScheme = asyncHandler(async(req,res) => {
-    let easy = parseInt(process.env.MARKS_EASY)
+    let easy = parseInt(process.env.c_EASY)
     let medium = parseInt(process.env.MARKS_MEDIUM)
     let hard = parseInt(process.env.MARKS_HARD)
 
@@ -351,21 +360,25 @@ const updateQuestion = asyncHandler(async(req,res)=> {
 
     if(data.answerType === "image") {
         let responses = []
-        data.answerChoices.forEach(async choice => {
-            let response = await uploadOnCloudinary(choice)
-            if(response == null) {
-                throw new ApiError(400, "Cloudinary error.Kindly check the links attached")
-            }
-            responses.push(response.url)
-        })
-        data.answerChoices = responses
-        
-        if(data.correctAnswer != null) {
-            let responseCorrectAnwer = await uploadOnCloudinary(data.correctAnswer)
-        data.correctAnswer = responseCorrectAnwer.url
-        } else {
-            throw new ApiError(400, "correctAnswer field is required")
+        let correctIndex = data.answerChoices.indexOf(data.correctAnswer)
+
+        if(correctIndex === -1) {
+            throw new ApiError(400, "Correct answer not in answer choices")
         }
+
+        for(const choice of data.answerChoices) {
+            let response = await uploadOnCloudinary(choice)
+            if(response === null) {
+               throw new ApiError(400, "Cloudinary error.Kindly check the links attached")
+            }
+
+            if(choice === data.answerChoices[correctIndex]) {
+                data.correctAnswer = response.url
+            }
+
+            responses.push(response.url)
+        }
+        data.answerChoices = responses
     }
 
     if(data.descriptionAttachment != null) {
@@ -375,6 +388,7 @@ const updateQuestion = asyncHandler(async(req,res)=> {
         }
         data.descriptionAttachment = response.url
     }
+
 
     const updateResponse = await QuizQuestion.updateOne(
         {_id:new mongoose.Types.ObjectId(id)},
