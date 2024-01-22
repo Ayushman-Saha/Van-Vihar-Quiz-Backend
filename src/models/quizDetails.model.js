@@ -19,7 +19,11 @@ const quizDetailsSchema = new Schema({
     },
     tags: [
         {type: String}
-    ]
+    ],
+    timeLimit: {
+        type: Number,
+        required: true
+    }
 },{
     timestamps: true
 })

@@ -14,14 +14,6 @@ const addResult = asyncHandler(async(req,res) => {
     ) {
         throw new ApiError(400, "All fields are required")
     }
-
-    const existedResult = await QuizResult.findOne({
-        $and: [{ uid },{email}]
-    })
-
-    if (existedResult) {
-        throw new ApiError(409, "Multiple entries are not permitted")
-    }
     
     const result = await QuizResult.create({
         uid,
