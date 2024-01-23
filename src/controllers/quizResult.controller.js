@@ -134,4 +134,50 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
     )
 })
 
-export {addResult, getResult, clearResult, getLeaderBoard}
+const getDailyPlayers = asyncHandler(async(req, res) => {
+
+    let {date} = req.query
+
+    if(date === null) {
+        throw new ApiError(400, "Date as query is required")
+    }
+
+    let dailyPlayers = await QuizResult.aggregate([
+       { $addFields : {
+            "creationDate":  {$dateToString:{format: "%Y-%m-%d", date: "$createdAt"}}
+          }
+       },
+       {
+        
+        $match: { creationDate:  {$eq: date}}}
+    ])
+
+    res.status(200).json(
+        new ApiResponse(200, dailyPlayers, "Successfully fetch daily user")
+    )
+})
+
+const getMonthlyPlayers = asyncHandler(async(req, res) => {
+
+    let {month} = req.query
+
+    if(month === null) {
+        throw new ApiError(400, "Date as query is required")
+    }
+
+    let monthlyPlayers = await QuizResult.aggregate([
+       { $addFields : {
+            "creationMonth":  {$dateToString:{format: "%m", date: "$createdAt"}}
+          }
+       },
+       {
+        
+        $match: { creationMonth:  {$eq: month}}}
+    ])
+
+    res.status(200).json(
+        new ApiResponse(200, monthlyPlayers, "Successfully fetch daily user")
+    )
+})
+
+export {addResult, getResult, clearResult, getLeaderBoard, getDailyPlayers, getMonthlyPlayers}

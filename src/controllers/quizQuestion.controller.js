@@ -346,6 +346,62 @@ const getQuestionReport = asyncHandler(async(req,res)=> {
     )
 })
 
+const getQuestionTagsReport = asyncHandler(async(req,res)=> {
+    const tagsReport = await QuizQuestion.aggregate([
+        {
+            $lookup: {
+            from: "quizresults",
+            localField: "_id",
+            foreignField: "attemptedQuestionIds",
+            as:"attemptsArray"
+          }
+        },
+        {
+            $addFields: {"attempts": {$size:"$attemptsArray"}}
+           
+        },
+        {
+            $project:{
+             "attemptsArray" : 0
+           }
+        },
+        {
+            $lookup : {
+             from: "quizresults",
+             localField: "_id",
+             foreignField: "correctAttemptedQuestionIds",
+             as:"correctAttemptsArray"
+           }
+        },
+        {
+            $addFields: {"correctAttempts": {$size:"$correctAttemptsArray"}}
+        },
+        {
+            $project: {
+                "correctAttemptsArray": 0
+            }
+        },
+        {
+            $unwind: "$tags"
+        }, 
+        {
+            $group: {
+                _id: "$tags",
+                attempt : {$sum: "$attempts"},
+                correctAttempt : {$sum : "$correctAttempts"}
+              }
+        }
+    ])
+
+    if(tagsReport === null) {
+        throw new ApiError(500, "Error while fetching the tag report")
+    } else {
+        res.status(200).json(
+            new ApiResponse(200, tagsReport, "Tags report fetched successfully!")
+        )
+    }
+})
+
 const updateQuestion = asyncHandler(async(req,res)=> {
     let {id} = req.query
     let {data} = req.body
@@ -419,4 +475,4 @@ const removeQuestion = asyncHandler(async(req,res)=> {
     }
 })
 
-export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion, getQuestionById}
+export {addQuestions, getQuestions,getMarkingScheme, getQuestionReport, getQuestionsByTags, updateQuestion, removeQuestion, getQuestionById, getQuestionTagsReport}
