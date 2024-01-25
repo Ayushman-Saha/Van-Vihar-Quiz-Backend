@@ -87,16 +87,29 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
     const {size} = req.query
     let limit = parseInt(size)
     let pipeline = []
+    let localDate = new Date()
+    const formattedDate = `${localDate.getUTCFullYear()}-${(localDate.getUTCMonth() + 1).toString().padStart(2,'0')}-${localDate.getUTCDate().toString().padStart(2,'0')}`
 
     let notNullPipeline = [
         {
             $sort: {"score":-1, "timeTaken": 1}
         },
+        { $addFields : {
+            "creationDate":  {$dateToString:{format: "%Y-%m-%d", date: "$createdAt"}}
+          }
+       },
         {
-            $limit: limit
+            $match: {
+                creationDate:  {$eq: formattedDate}
+              }
+        },
+        {
+            $limit: 10
         },
         {
             $project: {
+                "creationDate" : 0,
+                "createdAt": 0,
                 "attemptedQuestionIds" : 0,
                 "correctAttemptedQuestionIds" : 0,
                 "updatedAt": 0,
@@ -110,8 +123,19 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
             {
                 $sort: {"score":-1, "timeTaken": 1}
             },
+            { $addFields : {
+                "creationDate":  {$dateToString:{format: "%Y-%m-%d", date: "$createdAt"}}
+              }
+           },
+            {
+                $match: {
+                    creationDate:  {$eq: formattedDate}
+                  }
+            },
             {
                 $project: {
+                    "creationDate" : 0,
+                    "createdAt": 0,
                     "attemptedQuestionIds" : 0,
                     "correctAttemptedQuestionIds" : 0,
                     "updatedAt": 0,
