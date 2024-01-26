@@ -202,4 +202,39 @@ const getMonthlyPlayers = asyncHandler(async(req, res) => {
     )
 })
 
-export {addResult, getResult, clearResult, getLeaderBoard, getDailyPlayers, getMonthlyPlayers}
+const getAllLeaderboard = asyncHandler(async(req,res)=> {
+    let leaderBoard = await QuizResult.aggregate([
+        {
+            $sort: {"score":-1, "timeTaken": 1}
+        },
+        { $addFields : {
+            "playerType": {
+                $cond: {
+                  if:{ $regexMatch: {input: "$email",regex: /@/}},then: "app",
+                  else: "kiosk"
+                }
+              }
+          }
+       },
+        {
+            $project: {
+                "creationDate" : 0,
+                "attemptedQuestionIds" : 0,
+                "correctAttemptedQuestionIds" : 0,
+                "updatedAt": 0,
+                "__v": 0
+            }
+        }
+
+    ])
+
+    if(leaderBoard == null) {
+        throw new ApiError(500, "Couldn't fetch the leaderboard")
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, leaderBoard, "Fetched leaderboard successfully!")
+    )
+})
+
+export {addResult, getResult, clearResult, getLeaderBoard, getDailyPlayers, getMonthlyPlayers, getAllLeaderboard}
