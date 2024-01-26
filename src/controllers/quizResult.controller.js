@@ -109,7 +109,6 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
         {
             $project: {
                 "creationDate" : 0,
-                "createdAt": 0,
                 "attemptedQuestionIds" : 0,
                 "correctAttemptedQuestionIds" : 0,
                 "updatedAt": 0,
@@ -135,7 +134,6 @@ const getLeaderBoard = asyncHandler(async(req,res)=> {
             {
                 $project: {
                     "creationDate" : 0,
-                    "createdAt": 0,
                     "attemptedQuestionIds" : 0,
                     "correctAttemptedQuestionIds" : 0,
                     "updatedAt": 0,
