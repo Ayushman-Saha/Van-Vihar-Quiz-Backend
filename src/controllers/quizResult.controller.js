@@ -44,7 +44,8 @@ const getResult = asyncHandler(async(req, res) => {
 
     let user = await QuizResult.findOne({
         uid: uid
-    })
+    }).sort({"createdAt": -1})
+    
     if(user!=null) {
         return res.status(200).json(
             new ApiResponse(200, user, "User result fetched successfully!")
