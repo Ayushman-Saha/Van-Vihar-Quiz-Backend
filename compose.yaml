@@ -1,0 +1,34 @@
+services:
+  server:
+    build:
+      context: .
+    environment:
+      MONGODB_PASS: chandlab
+      MONGODB_USERNAME: admin
+      MONGO_URI: mongodb://admin:chandlab@mongo_db:27017/?directConnection=true&w=majority
+      CORS_ORIGIN: "*"
+      PORT: 4000
+      CLOUDINARY_CLOUD_NAME: dstdv9fdn
+      CLOUDINARY_API_KEY: 671762784394687
+      CLOUDINARY_API_SECRET: ZYDWSE-kMTQJmvPot0Q0175LqiA
+    ports:
+      - 4000:4000
+    depends_on:
+      - mongo_db
+
+  mongo_db:
+    container_name: mongo_db
+    image: mongo:latest
+    restart: always
+    command: [--auth]
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: chandlab
+      
+    volumes:
+      - mongo_db:/data/db
+volumes:
+  mongo_db:
+
