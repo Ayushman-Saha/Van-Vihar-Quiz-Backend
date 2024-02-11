@@ -205,6 +205,7 @@ const getQuestions = asyncHandler(async(req, res) => {
     let pipeLine = (tags == undefined)? noTagPipeline : tagPipeline
 
    let response = await QuizQuestion.aggregate(pipeLine)
+   console.log("response",response)
 
    if(response == null) {
     throw new ApiError(500, "Error while fetching questions")
